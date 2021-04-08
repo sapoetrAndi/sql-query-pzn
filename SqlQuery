@@ -1,0 +1,11 @@
+mysql --version -> untuk cek version/ mysql client
+mysqld -> mysql server
+mysql -u root -p -> untuk login ke database
+show databases -> untuk menampilkan seluruh database
+show tables -> untuk menampilkan seluruh table
+Create database nama_database -> untuk membuat database
+drop database nama_database; -> untuk menghapus database
+use database nama_database -> untuk memilih database yang ingin digunakan
+
+Create table nama_table
+

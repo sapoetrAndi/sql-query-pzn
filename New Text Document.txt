@@ -1,0 +1,4 @@
+char default byte 4
+varchar penggunaan byte mengikuti jumlah karakter minimal 1 byte (recomended)
+tinytext -> tidak bisa ditentukan panjangnya maksimal 255(256bytes -> tinytext)
+longtext -> tidak bisa ditentukan panjangnya maksimal 4294967295(4GB -> long text)

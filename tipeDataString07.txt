@@ -1,0 +1,3 @@
+tipe data datetime hampir sama dengan tipedata timestamp,
+ namun jika kita ingin menyimpan data seperti created_at atau updated_at 
+maka kita disarankan memakai timestamp

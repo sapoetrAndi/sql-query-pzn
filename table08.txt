@@ -1,0 +1,2 @@
+turncate nama table -> menghapus semua isi table
+show create table nama table -> melihat query yang kita buat sebelumnya
