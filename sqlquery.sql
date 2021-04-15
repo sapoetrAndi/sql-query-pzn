@@ -1,3 +1,56 @@
+/* 
+Materi Video :
+00:00:00​ - Pendahuluan
+00:01:41​ - Pengenalan Sistem Basis Data
+00:12:05​ - Pengenalan SQL
+00:20:28​ - Menginstall MySQL
+00:37:07​ - Database
+00:45:47​ - Tipe Data
+00:49:10​ - Tipe Data Number
+00:55:31​ - Tipe Data String
+01:02:34​ - Tipe Data Date dan Time
+01:05:50​ - Tipe Data Boolean
+01:06:49​ - Tipe Data Lainnya
+01:08:22​ - Table
+01:33:08​ - Insert Data
+01:41:40​ - Select Data
+01:44:21​ - Primary key
+01:50:38​ - Where Clause
+01:54:14​ - Update Data
+02:02:05​ - Delete Data
+02:04:43​ - Alias
+02:08:57​ - Where Operator
+02:29:24​ - Order By Clause
+02:33:10​ - Limit Clause
+02:37:19​ - Select Distinct Data
+02:39:24​ - Numeric Function
+02:45:36​ - Auto Increment
+02:52:34​ - String Function
+02:55:29​ - Date dan Time Function
+02:58:21​ - Flow Control Function
+03:06:01​ - Aggregate Function
+03:10:31​ - Grouping
+03:16:45​ - Constraint
+03:28:17​ - Index
+03:42:15​ - Full-Text Search
+03:54:05​ - Table Relationship
+04:11:58​ - Join
+04:23:19​ - One to One Relationship
+04:31:42​ - One to Many Relationship
+04:40:54​ - Many to Many Relationship
+05:00:05​ - Jenis-Jenis Join
+05:14:40​ - Subquery
+05:20:20​ - Set Operator
+05:34:22​ - Transaction
+05:46:45​ - Locking
+06:12:01​ - User Management
+06:24:11​ - Backup Database
+06:28:50​ - Restore Database
+
+ */
+
+
+
 /* melihat engines yang tersedia di database */
 SHOW ENGINES;
 
@@ -420,3 +473,145 @@ CREATE TABLE wallet{
     CONSTRAINT fk_wallet_customer
         FOREIGN KEY (id_customer) REFERENCES customers(id)
 }ENGINE = InnoDB;
+
+----------------------------------------- One To Many Relationship (relasi satu ke banyak)---------------------------------------
+/* one to many berarti satu data bisa digunakan lebih dari satu kali di table relasinya, misal satu category bisa digunakan oleh banyak produk. implementainya tidak perlu menggunakan  unique key di table relasi seperti one to one karena memang datanya boleh berkali kali ditambahkan di table relasinya */
+
+CREATE TABLE categories{
+    id VARCHAR(10) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id)
+}ENGINE = InnoDB;
+
+--tambahkan relasi ke table produk. paa relasi ini data boleh sama di kolom foreign key
+ALTER TABLE products
+A CONSTRAINT fk_product_categories
+FOREIGN KEY (id_category) REFERENCES categories(id);
+
+----------------------------------------- Many To Many Relationship (relasi banyak ke banyak)---------------------------------------
+/* relai many to many adalah relasi antar dua table dimana table pertama bisa punya banyak relasi di table kedua, begitupula sebaliknya. implementasi many to many adalah dengan membuat satu buah table relasi ditengahnya yang berfungsi sebagai jembatan untuk menggabungkan relasi M to M. isi table jembtannya akan berisi id dari table pertama dan id dari table ke dua  */
+
+--TABLE ORDER
+CREATE TABLE orders{
+    id INT NOT NULL AUTO_INCREMENT,
+    total INT NOT NULL,
+    order_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+}ENGINE = InnoDB;
+
+
+--TABLE RELASI/PENGHUBUNG/JEMBATAN ANTARA DUA TABLE M TO M
+CREATE TABLE orders_detail{
+    id_product VARCHAR(10) NOT NULL,
+    id_order INT NOT NULL,
+    price INT NOT NULL,
+    quantity INT NOT NULL,
+    PRIMARY KEY (id_product, id_order)
+}ENGINE = InnoDB;
+
+--menambahkan foreign key ke table penghubung
+ALTER TABLE orders_detail
+ADD CONSTRAINT fk_orders_detail_products
+FOREIGN KEY (id_product) REFERENCES products(id);
+
+ALTER TABLE orders_detail
+ADD CONSTRAINT fk_orders_detail_orders
+FOREIGN KEY (id_order) REFERENCES orders(id);
+
+----------------------------------------- Kesimpulan dari relasi antar table ---------------------------------------
+/* implementasi relasi dilakukan dengan membuat sebuah field sebagai foreign key di tabel lain, jika relasinya one to one maka field foreign key tersebut di buat menjadi unique key, apabila one to many foreign key tidak perlu dijadikan unique key, sedangkan untuk relasi many to many kita harus membuat satu table lagi sebagai table penghubung antara dua table kemudian membuat fiel foreign key dari setiap masing masing table seperti contoh diatas */
+
+----------------------------------------- Jenis jenis join ---------------------------------------
+/* 
+- INNER JOIN 
+ini adalah default join. jika ada data di table pertama yang tidak memiliki relasi ditable kedua ataupun sebaliknya, maka hail inner join tidak akan ditampilkan
+- LEFT JOIN
+seperti inner join namun semua data di table pertama akan ditampilkan juga meski kolom relasinya kosong
+RIGHT JOIN
+- kebalikan dari left join
+CROSS JOIN
+- mengalikan di table pertama dengan data di table kedua. artinya jika ada 5 data di table pertama dan 5 data ditable kedua maka akan menghasilkan 25 kombinasi data(5X5). join ini jarang sekali digunakan
+ */
+
+--inner join
+ SELECT * FROM categories INNER JOIN proucts ON (proucts.id_category = categories.id);
+
+--left join
+ SELECT * FROM categories LEFT JOIN proucts ON (proucts.id_category = categories.id);
+
+--right join
+ SELECT * FROM categories RIGHT JOIN proucts ON (proucts.id_category = categories.id);
+
+--right join
+ SELECT * FROM categories CROSS JOIN proucts;
+
+ ----------------------------------------- Subquery ---------------------------------------
+/* subquery adalah untuk mencari data berdasarkan hasil query lain */
+SELECT * FROM products WHERE price > (SELECT AVG(price) FROM products);
+
+--Subquery JUGA BISA DILAKUKAN DI FROM CLAUSE NAMUN HARUS MENGGUNAKAN ALIAS
+SELECT MAX(cp.price) FROM (SELECT price FROM categories JOIN products ON (products.id_category = categories.id)) AS cp;
+
+----------------------------------------- Set Operator ---------------------------------------
+/* 
+set operator adalah operasi antara hasil dari dua select query. Ada banyak jenis operator set, yaitu:
+- UNION
+    - operasi menggabungkan dua buah select query, dimana jika terdapat data yang duplikat, data duplikatnya akan dihapus dari hasil query
+- UNION ALL
+    - sama seperti union namun data duplikat akan tetap ditampilkan dihasil querynya
+- INTERSECT
+    - operasi menggabungkan dua query, namun yang diambil hanya data yang terdapat pada hasil query dan query kedua
+    - data yang muncul data distinc/tidak duplikat
+    - INTERSECT diimplementasikan menggunakan join atau subquery
+- MINUS
+    - operasi dimana query pertama akan dihilangkan oleh query kedua
+    - MINUS diimplementasikan menggunakan JOIN
+ */
+
+ CREATE TABLE guestbooks{
+    id INT NOT NULL AUTO_INCREMENT,
+    email VARCHAR(100),
+    title VARCHAR(100),
+    content TEXT,
+    PRIMARY KEY (id)
+}ENGINE = InnoDB;
+
+INSERT INTO guestbooks(email, title, content) VALUES ('guest@gmail.com', 'Hello', 'Hello'),
+('guest@gmail.com', 'Hello', 'Hello'),
+('guest2@gmail.com', 'Hello', 'Hello'),
+('guest3@gmail.com', 'Hello', 'Hello'),
+('eko@gmail.com', 'Hello', 'Hello'),
+('eko@gmail.com', 'Hello', 'Hello'),
+('eko@gmail.com', 'Hello', 'Hello')
+
+--UNION -> MENAMPILKAN DATA HASIL GABUNGAN DARI KEDUA QUERY DIBAWAH, NAMUN DATA YANG DUPLIKAT HANYA DITAMPILKAN SATU
+SELECT DISTINC email FROM customers
+UNION
+SELECT DISTINC email FROM guestbooks;
+
+--UNION ALL -> sama seperti union namun data duplikat akan tetap ditampilkan dihasil querynya
+SELECT DISTINC email FROM customers
+UNION
+SELECT DISTINC email FROM guestbooks;
+
+--menghitung berapa banyak kemunculan email
+SELECT emails.email, COUNT(emails.email) FROM
+(SELECT DISTINC email FROM customers
+UNION
+SELECT DISTINC email FROM guestbooks) AS emails GROUP BY emails.email;
+
+
+/* INTERSECT
+    - operasi menggabungkan dua query, namun yang diambil hanya data yang terdapat pada hasil query dan query kedua
+    - data yang muncul data distinc/tidak duplikat
+    - INTERSECT diimplementasikan menggunakan inner join atau subquery */
+SELECT DISTINC email FROM customers WHERE email IN (SELECT DISTINC email FROM guestbooks);
+--atau
+SELECT DISTINC customers.email FROM customers INNER JOIN guestbooks ON (guestbooks.email = customers.email);
+
+/* 
+- MINUS
+    - operasi dimana query pertama akan dihilangkan oleh query kedua
+    - MINUS diimplementasikan menggunakan JOIN */
+
+SELECT DISTINC customers.email, guestbooks.email FROM customers LEFT JOIN guestbooks ON (guestbooks.email = customers.email) WHERE guestbooks.email IS NULL;
