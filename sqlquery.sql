@@ -615,3 +615,75 @@ SELECT DISTINC customers.email FROM customers INNER JOIN guestbooks ON (guestboo
     - MINUS diimplementasikan menggunakan JOIN */
 
 SELECT DISTINC customers.email, guestbooks.email FROM customers LEFT JOIN guestbooks ON (guestbooks.email = customers.email) WHERE guestbooks.email IS NULL;
+
+----------------------------------------- Database Transaction ---------------------------------------
+/* 
+Database Transaction adalah fitur di dbms yang memungkinkan kita untuk melakukan beberapa perintah yang dianggap menjadi sebuah kesatuan perintah yang kita sebut transaction. jika terdapat satu saja proses gagal di transaction, maka swcara otomatis perintah perintah sebelumnya akan dibatalkan begitu juga sebaliknya.
+Database transaction hanya bisa digunakan untuk DML. kita tidak bisa menggunakan database transaction untuk mengubah struktur table (DDL).
+ */
+
+--EKSEKUSI INI TERLEBIH DAHULU UNTUK MEMULAI TRANSACTION
+ START TRANSACTION;
+
+--data tidak akan terlihat oleh user lain apabila belum di commit
+ INSERT INTO guestbooks (email,title,content) VALUES ('contoh1@gmail.com', 'contoh', 'contoh'),
+ ('contoh2@gmail.com', 'contoh', 'contoh'),
+ ('contoh3@gmail.com', 'contoh', 'contoh');
+
+ COMMIT;
+
+
+  START TRANSACTION;
+
+--data tidak akan terlihat oleh user lain apabila belum di commit
+ INSERT INTO guestbooks (email,title,content) VALUES ('contoh1@gmail.com', 'contoh', 'contoh'),
+ ('contoh2@gmail.com', 'contoh', 'contoh'),
+ ('contoh3@gmail.com', 'contoh', 'contoh');
+
+-- JIKA DITENGAH TRANSACTION AA QUERY YANG GAGAL KITA DAPAT MELAKUKAN ROLLBACK
+--MENGEMBALIKAN HASIL QUERY SEBELUMNYA, DIGUNAKAN SEBELUM COMMIT
+ ROLLBACK;
+
+ ----------------------------------------- Locking ---------------------------------------
+ /* 
+ Locking adalah proses penguncian data di DBMS. proses penguncian data sangat penting dilakukan, salah satunya agar data benar benar terjamin konsistensinya. locking dilakukan secara otomatis ketika kita melakukan transaction. pada simulasi locking dimana user1 dan user2 melakukan update , maka user2 akan menunggu proses transaction user1 sampai selesai di commit maka proses transaction user2 baru akan dieksekusi. namun locking juga bisa dilakukan secara manual dengan menggunakan query For Update.
+ CATATA: JIKA PROSES TERLALU BANYAK LOCKING MAKA AKAN TERJADI DEADLOCK, DIMANA PROSES SALING MENUNGGU SEHINGGA PROSES TIDAK AKAN PERNAH SELESAI
+
+* locking table
+ -MYSQL mendukung proes locking terhadap sebuah table. jika kita me-lock sebuah table, artinya seluruh data di table tersebut akan di lock.
+ - ada 2 jenis lock table, yaitu READ dan WRITE
+ - cara melakukan locking table adalah dengan perintah
+    - LOCK TABLES nama_table READ
+    - LOCK TABLES nama_table WRITE
+- setelah selesai melakukan lock table, kita bisa melakukan unlock dengan perintah: UNLOCK TABLES;.
+  */
+
+  --locking manual
+  SELECT * FROM products WHERE id = 'P0001' FOR UPDATE;
+  SELECT * FROM products WHERE id = 'P0001' FOR INSERT;
+  SELECT * FROM products WHERE id = 'P0001' FOR DELETE;
+
+  ----------------------------------------- User Management ---------------------------------------
+
+  --Membuat / Menghapus User
+  CREATE USER 'eko'@'localhost';
+  CREATE USER 'khannedy'@'%';
+
+  DROP USER 'eko'@'localhost';
+  DROP USER 'khannedy'@'%';
+
+  --MEMBUAT HAK AKSES
+  GRANT SELECT ON belajar_mysql.* TO 'eko'@'localhost';
+  GRANT SELECT, INSERT, UPDATE, DELETE ON belajar_mysql.nama_table, nama_table TO 'khannedy'@'%';
+
+  --MELIHAT HAK AKSES
+    SHOW GRANTS FOR 'eko'@'localhost';
+    SHOW GRANTS FOR 'khannedy'@'%';
+
+  --MENGHAPUS HAK AKSES
+  REVOKE SELECT ON belajar_mysql.* FROM 'eko'@'localhost';
+  REVOKE SELECT, INSERT, UPDATE, DELETE ON belajar_mysql.nama_table, nama_table FROM 'khannedy'@'%';
+
+  --MENAMBAHKAN PASSWORD ATAU MENGUBAH
+  SET PASSWORD FOR 'eko'@'localhost' = 'RAHASIA';
+  SET PASSWORD FOR 'khannedy'@'%' = 'RAHASIA';
