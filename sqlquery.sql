@@ -687,3 +687,15 @@ Database transaction hanya bisa digunakan untuk DML. kita tidak bisa menggunakan
   --MENAMBAHKAN PASSWORD ATAU MENGUBAH
   SET PASSWORD FOR 'eko'@'localhost' = 'RAHASIA';
   SET PASSWORD FOR 'khannedy'@'%' = 'RAHASIA';
+
+-----------------------------------------Back UP DB ---------------------------------------
+/* backup datbase menggunakan mysqldump */
+mysqldump nama_database --user root --password --result-file=/lokasi_simpan_yang_diinginkan
+
+-----------------------------------------Restore DB ---------------------------------------
+/* untuk melakukan restore db, kita bisa menggunakan aplikasi mysql client atau menggunakan perintah SOURCE di MySql */
+--menggunakan CMD
+mysl --user=root --password nama_database < /Users/Khannedy/desktop/backup.sql 
+
+--cara kedua
+SOURCE /Users/khannedy/Desktop/nama_file.sql
